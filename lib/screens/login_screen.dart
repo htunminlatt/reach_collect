@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reach_collect/screens/home_screen.dart';
+import 'package:reach_collect/screens/prefilled_screen.dart';
 import 'package:reach_collect/utils/app_styles.dart';
 import 'package:reach_collect/widgets/button_widget.dart';
 import 'package:reach_collect/widgets/textfield_widget.dart';
@@ -56,10 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: true,
                     controller: passwordController),),
                 SizedBox(height: 50,),
-                Container(height: 50, width: 300,
+                SizedBox(height: 50, width: 300,
                 child: ButtonWidget(buttonText: 'Sign In',onPressed: (){
                   Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const HomeScreen(),)
+                      MaterialPageRoute(builder: (_) => const PreFilledScreen(),)
                   );
                 }),)
               ],

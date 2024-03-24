@@ -1,7 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:reach_collect/screens/home_screen.dart';
 import 'package:reach_collect/screens/splash_screen.dart';
-void main() {
+import 'package:window_manager/window_manager.dart';
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+  if (Platform.isMacOS || Platform.isWindows) {
+    // WindowManager.instance.setMinimumSize(const Size(1200, 600));
+    WindowManager.instance.setMaximumSize(const Size(2000, 2000));
+  }
   runApp(const MyApp());
 }
 class MyApp extends StatelessWidget {

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:reach_collect/utils/app_styles.dart';
 
@@ -10,7 +9,7 @@ class IconButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    // Size size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton.icon(onPressed: onPressed, icon: Image.asset(buttonIcon,width: 40,height: 40,),
