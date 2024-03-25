@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 class HorizontalRadioButton extends StatefulWidget {
+  const HorizontalRadioButton({super.key, required this.radioValue, required this.activeValue});
+
+  final Function(String) radioValue;
+  final String activeValue;
+
   @override
   // ignore: library_private_types_in_public_api
   _HorizontalRadioButtonsDemoState createState() =>
@@ -14,6 +19,15 @@ class _HorizontalRadioButtonsDemoState
   void _handleRadioValueChanged(String? value) {
     setState(() {
       _selectedValue = value ?? '';
+      widget.radioValue(value ?? '');
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _selectedValue = widget.activeValue;
     });
   }
 
@@ -24,14 +38,14 @@ class _HorizontalRadioButtonsDemoState
       body: Row(
         children: <Widget>[
           Radio(
-            value: 'Yes',
+            value: 'true',
             groupValue: _selectedValue,
             onChanged: _handleRadioValueChanged,
           ),
           const Text('Yes'),
           const SizedBox(width: 10,),
           Radio(
-            value: 'No',
+            value: 'false',
             groupValue: _selectedValue,
             onChanged: _handleRadioValueChanged,
           ),

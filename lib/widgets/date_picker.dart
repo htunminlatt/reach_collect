@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DatePicker extends StatefulWidget {
-  const DatePicker({super.key, required this.dateString});
+  const DatePicker({super.key, required this.dateString, required this.updateDateString,});
   final Function(String) dateString;
+  final String updateDateString;
 
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -10,11 +11,12 @@ class DatePicker extends StatefulWidget {
 
 class _DatePickerState extends State<DatePicker> {
   DateTime selectedDate = DateTime.now();
+  String showDateString = '';
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
+      initialDate: widget.updateDateString.isNotEmpty ? DateTime.parse(widget.updateDateString) : selectedDate,
       firstDate: DateTime(1900),
       lastDate: DateTime(2101),
     );
@@ -22,9 +24,21 @@ class _DatePickerState extends State<DatePicker> {
       setState(() {
         selectedDate = picked;
         widget.dateString("${selectedDate.toLocal()}".split(' ')[0]);
+        showDateString = "${selectedDate.toLocal()}".split(' ')[0];
+
       });
     }
   }
+
+@override
+  void initState() {
+    super.initState();
+
+    if(widget.updateDateString.isNotEmpty){
+      showDateString = widget.updateDateString;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
      return InkWell(
@@ -44,7 +58,7 @@ class _DatePickerState extends State<DatePicker> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                "${selectedDate.toLocal()}".split(' ')[0],
+                showDateString,
                 style:const TextStyle(fontSize: 17),
               ),
                const Icon(Icons.date_range)

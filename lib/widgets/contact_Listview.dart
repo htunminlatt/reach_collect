@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:reach_collect/data/models/reach_model.dart';
+import 'package:reach_collect/network/presistance/database_provider.dart';
+import 'package:reach_collect/screens/edit_userInfo.dart';
 import 'package:reach_collect/utils/app_styles.dart';
 
 class ContactListView extends StatelessWidget {
-  const ContactListView({super.key});
+  const ContactListView({super.key, required this.reachData, required this.reloadView});
+
+  final List<ReachCollectVo> reachData;
+  final Function reloadView;
 
   @override
   Widget build(BuildContext context) {
@@ -16,47 +22,60 @@ class ContactListView extends StatelessWidget {
       'Gestational',
       'Gravida'
     ];
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.only(top: 10, bottom: 10, right: 150),
-                color: AppTheme.secondaryColor,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: titleArray
-                      .map((e) => SizedBox(
-                            width: e == titleArray[0]
-                                ? 30
-                                : e == titleArray[3]
-                                    ? 30
-                                    : e == titleArray[5]
-                                        ? 30
-                                        : 90,
-                            child: Text(
-                              e,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ))
-                      .toList(),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.only(top: 10, bottom: 10, right: 150),
+                  color: AppTheme.secondaryColor,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: titleArray
+                        .map((e) => SizedBox(
+                              width: e == titleArray[0] ? 30 : 90,
+                              child: Text(
+                                e,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ))
+                        .toList(),
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        Column(
-          children: titleArray.map((e) => ContactView()).toList(),
-        )
-      ],
+            ],
+          ),
+          Column(
+            children: reachData
+                .asMap()
+                .entries
+                .map((e) => ContactView(
+                      data: e.value,
+                      index: e.key, reload: reloadView,
+                    ))
+                .toList(),
+          )
+        ],
+      ),
     );
   }
 }
 
 // ignore: must_be_immutable
-class ContactView extends StatelessWidget {
-  ContactView({super.key});
+class ContactView extends StatefulWidget {
+  const ContactView({super.key, required this.data, required this.index, required this.reload});
+
+  final ReachCollectVo data;
+  final int index;
+  final Function reload;
+
+  @override
+  State<ContactView> createState() => _ContactViewState();
+}
+
+class _ContactViewState extends State<ContactView> {
   List<String> titleArray = [
     '100',
     '12.3.2024',
@@ -69,9 +88,24 @@ class ContactView extends StatelessWidget {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    titleArray = [
+      '${widget.index + 1}',
+      widget.data.date ?? '',
+      widget.data.name ?? '',
+      widget.data.age ?? '',
+      widget.data.disability ?? '',
+      widget.data.idp ?? '',
+      widget.data.gestational ?? '',
+      widget.data.gravida ?? ''
+    ];
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      // margin: const EdgeInsets.symmetric(vertical: 1),
       height: 50,
       decoration: const BoxDecoration(color: Colors.white, boxShadow: [
         BoxShadow(blurRadius: 3.0, spreadRadius: 2.0, color: Colors.black12)
@@ -79,53 +113,68 @@ class ContactView extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: titleArray
-                    .map((e) => SizedBox(
-                        width: e == titleArray[0]
-                            ? 30
-                            : e == titleArray[3]
-                                ? 30
-                                : e == titleArray[5]
-                                    ? 30
-                                    : 90,
-                        child: Text(
-                          e,
-                          style: const TextStyle(overflow: TextOverflow.ellipsis),
-                        )))
-                    .toList(),
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: titleArray
+                  .map((e) => SizedBox(
+                      width: e == titleArray[0] ? 30 : 90,
+                      child: Text(
+                        e,
+                        style:
+                            const TextStyle(overflow: TextOverflow.ellipsis),
+                      )))
+                  .toList(),
             ),
           ),
           const SizedBox(
             width: 40,
           ),
-          Container(
-            height: 30,
-            width: 30,
-            color: Colors.red,
-            child: const Center(
-              child: Icon(
-                Icons.delete,
-                size: 15,
-                color: Colors.white,
+          InkWell(
+            onTap: () {
+              try {
+                DatabaseProvider.db.deleteFromDB(widget.data.id ?? 0);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Center(
+                  child: Text('Delete data successfully!'),
+                )));
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Center(
+                  child: Text('Delete Fail!!'),
+                )));
+              }
+              widget.reload();
+            },
+            child: Container(
+              height: 30,
+              width: 30,
+              color: Colors.red,
+              child: const Center(
+                child: Icon(
+                  Icons.delete,
+                  size: 15,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
           const SizedBox(
             width: 10,
           ),
-          Container(
-            height: 30,
-            width: 30,
-            color: AppTheme.thirdColor,
-            child: const Center(
-              child: Icon(
-                Icons.remove_red_eye,
-                size: 15,
-                color: Colors.white,
+          InkWell(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>  EditUserInfo(reachCollectVo: widget.data)));
+            },
+            child: Container(
+              height: 30,
+              width: 30,
+              color: AppTheme.thirdColor,
+              child: const Center(
+                child: Icon(
+                  Icons.remove_red_eye,
+                  size: 15,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
